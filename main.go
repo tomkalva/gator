@@ -1,13 +1,18 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"gator/internal/config"
+	"gator/internal/database"
 	"log"
 	"os"
+
+	_ "github.com/lib/pq"
 )
 
 type state struct {
+	db         *database.Queries
 	cfgPointer *config.Config
 }
 
@@ -18,7 +23,16 @@ func main() {
 		return
 	}
 
+	dbURL := cfg.DBURL
+	db, err := sql.Open("postgres", dbURL)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+	dbQueries := database.New(db)
+
 	s := &state{
+		db:         dbQueries,
 		cfgPointer: &cfg,
 	}
 
@@ -26,6 +40,7 @@ func main() {
 		commandNames: make(map[string]func(*state, command) error),
 	}
 	cmds.register("login", handlerLogin)
+	cmds.register("register", handlerRegister)
 
 	if len(os.Args) < 2 {
 		fmt.Println("No command name given")
@@ -36,8 +51,10 @@ func main() {
 		commandName: os.Args[1],
 		arguments:   os.Args[2:],
 	}
+
 	err = cmds.run(s, cmd)
 	if err != nil {
 		log.Fatal(err)
 	}
+
 }
