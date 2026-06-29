@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"gator/internal/database"
+	"gator/internal/rss"
 	"time"
 
 	"github.com/google/uuid"
@@ -80,5 +81,14 @@ func handlerUsers(s *state, cmd command) error {
 		}
 	}
 
+	return nil
+}
+
+func handlerAgg(s *state, cmd command) error {
+	feed, err := rss.FetchFeed(context.Background(), "https://www.wagslane.dev/index.xml")
+	if err != nil {
+		return err
+	}
+	fmt.Printf("%+v\n", *feed)
 	return nil
 }
