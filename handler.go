@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"gator/internal/database"
-	"gator/internal/rss"
 	"time"
 
 	"github.com/google/uuid"
@@ -85,11 +84,25 @@ func handlerUsers(s *state, cmd command) error {
 }
 
 func handlerAgg(s *state, cmd command) error {
-	feed, err := rss.FetchFeed(context.Background(), "https://www.wagslane.dev/index.xml")
+	if len(cmd.arguments) != 1 {
+		return fmt.Errorf("time_between_reqs required")
+	}
+	time_between_reqs := cmd.arguments[0]
+
+	timeBetweenRequests, err := time.ParseDuration(time_between_reqs)
 	if err != nil {
 		return err
 	}
-	fmt.Printf("%+v\n", *feed)
+
+	fmt.Printf("Collecting feeds every %v\n", timeBetweenRequests)
+
+	ticker := time.NewTicker(timeBetweenRequests)
+	for ; ; <-ticker.C {
+		err := scrapeFeeds(s)
+		if err != nil {
+			fmt.Println("Error scraping feeds:", err)
+		}
+	}
 	return nil
 }
 
@@ -229,6 +242,6 @@ func handlerUnfollow(s *state, cmd command, user database.User) error {
 	if err != nil {
 		return err
 	}
-
+	fmt.Printf("%s unfollowed successfully!\n", feed.Name)
 	return nil
 }
