@@ -3,9 +3,10 @@ package main
 import (
 	"context"
 	"fmt"
-	"gator/internal/database"
 	"strconv"
 	"time"
+
+	"github.com/tomkalva/gator/internal/database"
 
 	"github.com/google/uuid"
 )
@@ -86,7 +87,7 @@ func handlerUsers(s *state, cmd command) error {
 
 func handlerAgg(s *state, cmd command) error {
 	if len(cmd.arguments) != 1 {
-		return fmt.Errorf("time_between_reqs required")
+		return fmt.Errorf("timeBetweenRequests required")
 	}
 	time_between_reqs := cmd.arguments[0]
 

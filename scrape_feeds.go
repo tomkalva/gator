@@ -4,11 +4,12 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"gator/internal/database"
-	"gator/internal/rss"
 	"log"
 	"strings"
 	"time"
+
+	"github.com/tomkalva/gator/internal/database"
+	"github.com/tomkalva/gator/internal/rss"
 
 	"github.com/google/uuid"
 )
